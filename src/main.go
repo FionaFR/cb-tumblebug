@@ -79,8 +79,7 @@ func main() {
 	common.UpdateGlobalVariable(common.StrAutocontrolDurationMs)
 
 	// load config
-	//masterConfigInfos = confighandler.GetMasterConfigInfos()
-
+	
 	//Setup database (meta_db/dat/cbtumblebug.s3db)
 	fmt.Println("")
 	fmt.Println("[Setup SQL Database]")
@@ -90,28 +89,17 @@ func main() {
 		fmt.Println(err.Error())
 	}
 
-	//err = common.OpenSQL("../meta_db/dat/cbtumblebug.s3db") // commented out to move to use XORM
 	common.ORM, err = xorm.NewEngine("sqlite3", "../meta_db/dat/cbtumblebug.s3db")
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
 		fmt.Println("Database access info set successfully")
 	}
-	//common.ORM.SetMapper(names.SameMapper{})
+	
 	common.ORM.SetTableMapper(names.SameMapper{})
 	common.ORM.SetColumnMapper(names.SameMapper{})
 
-	/* // Required if using MySQL // Not required if using SQLite
-	err = common.SelectDatabase(common.DB_DATABASE)
-	if err != nil {
-		fmt.Println(err.Error())
-	} else {
-		fmt.Println("DB selected successfully..")
-	}
-	*/
-
 	// "CREATE Table IF NOT EXISTS spec(...)"
-	//err = common.CreateSpecTable() // commented out to move to use XORM
 	err = common.ORM.Sync2(new(mcir.TbSpecInfo))
 	if err != nil {
 		fmt.Println(err.Error())
@@ -120,15 +108,12 @@ func main() {
 	}
 
 	// "CREATE Table IF NOT EXISTS image(...)"
-	//err = common.CreateImageTable() // commented out to move to use XORM
 	err = common.ORM.Sync2(new(mcir.TbImageInfo))
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
 		fmt.Println("Table image set successfully..")
 	}
-
-	//defer db.Close()
 
 	//Ticker for MCIS Orchestration Policy
 	fmt.Println("")
@@ -140,7 +125,6 @@ func main() {
 		for t := range ticker.C {
 			//display ticker if you need (remove '_ = t')
 			_ = t
-			//fmt.Println("- Orchestration Controller ", t.Format("2006-01-02 15:04:05"))
 			mcis.OrchestrationController()
 		}
 	}()
@@ -159,7 +143,6 @@ func main() {
 	// Start gRPC Server
 	go func() {
 		grpcserver.RunServer()
-		//fmt.Println("gRPC server started on " + grpcserver.Port)
 		wg.Done()
 	}()
 
